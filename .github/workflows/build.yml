@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitarm
+
     steps:
       - name: Checkout app
         uses: actions/checkout@v4
@@ -20,27 +23,14 @@ jobs:
           path: AuroraOS
           fetch-depth: 1
 
-      - name: Install devkitARM
+      - name: Install Python
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget xz-utils
-          wget -q https://github.com/devkitPro/pacman/releases/download/v1.0.2/devkitpro-pacman.amd64.deb
-          sudo dpkg -i devkitpro-pacman.amd64.deb || true
-          sudo apt-get install -f -y
-          sudo dkp-pacman -Sy --noconfirm
-          sudo dkp-pacman -S --noconfirm 3ds-dev
-          echo "/opt/devkitpro/devkitARM/bin" >> $GITHUB_PATH
-          echo "DEVKITARM=/opt/devkitpro/devkitARM" >> $GITHUB_ENV
-          echo "DEVKITPRO=/opt/devkitpro" >> $GITHUB_ENV
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+          apt-get update
+          apt-get install -y python3 python3-pip
 
       - name: Build with aurcc.py
         run: |
-          python AuroraOS/sdk/aurcc.py build src/main.c \
+          python3 AuroraOS/sdk/aurcc.py build src/main.c \
             -o AuroraWeb.bin \
             --icon icon.icon
 
