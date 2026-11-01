@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdarg.h>
 
 #define MAX_URL     256
 #define MAX_TITLE   128
@@ -122,7 +123,9 @@ static void html_to_text(const char *html, size_t len, char *out, size_t out_max
     out[oi] = 0;
 }
 
-static void on_net_wait(void) {
+/* net_on_wait callback: receives elapsed milliseconds */
+static void on_net_wait(uint32_t ms) {
+    (void)ms;
     spinner = (spinner + 1) % 4;
     const char *spin = "|/-\\";
     gfx_clear(SCREEN_BOTTOM, RGB(15, 20, 30));
@@ -193,7 +196,7 @@ static void load_url(const char *url) {
 
     extract_title(page_body, page_len);
 
-    /* convert to readable text in-place for display */
+    /* convert to readable text for display */
     char *text = (char *)malloc(take + 1);
     if (text) {
         html_to_text(page_body, page_len, text, take + 1);
@@ -353,7 +356,6 @@ int main(void) {
 
         /* page content */
         if (page_body) {
-            int line = 0;
             const char *p = page_body;
             int y = 78 - scroll_y;
 
@@ -370,7 +372,6 @@ int main(void) {
                     gfx_print(SCREEN_TOP, 8, y, FONT_SMALL, COLOR_WHITE, "%s", linebuf);
                 }
                 y += 14;
-                line++;
             }
         }
 
