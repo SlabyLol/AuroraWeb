@@ -12,6 +12,10 @@ jobs:
     container:
       image: devkitpro/devkitarm
 
+    env:
+      DEVKITPRO: /opt/devkitpro
+      DEVKITARM: /opt/devkitpro/devkitARM
+
     steps:
       - name: Checkout app
         uses: actions/checkout@v4
@@ -26,10 +30,17 @@ jobs:
       - name: Install Python
         run: |
           apt-get update
-          apt-get install -y python3 python3-pip
+          apt-get install -y --no-install-recommends python3
+
+      - name: Verify toolchain
+        run: |
+          export PATH="/opt/devkitpro/devkitARM/bin:/opt/devkitpro/tools/bin:$PATH"
+          which arm-none-eabi-gcc
+          arm-none-eabi-gcc --version
 
       - name: Build with aurcc.py
         run: |
+          export PATH="/opt/devkitpro/devkitARM/bin:/opt/devkitpro/tools/bin:$PATH"
           python3 AuroraOS/sdk/aurcc.py build src/main.c \
             -o AuroraWeb.bin \
             --icon icon.icon
